@@ -32,7 +32,8 @@ export class EditarPensamentoComponent implements OnInit {
         Validators.required,
         Validators.pattern(/(.|\s)*\S(.|\s)*/),
         ])],
-      modelo: [pensamento.modelo]
+      modelo: [pensamento.modelo],
+      favorito: [pensamento.favorito]
     })
   })
   }
