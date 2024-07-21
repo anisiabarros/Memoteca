@@ -52,19 +52,11 @@ export class ListarPensamentoComponent implements OnInit {
   }
 
   pesquisarPensamentos() {
-    console.log('Pesquisar pensamentos - Filtro:', this.filtro);
+
     this.haMaisPensamentos = true;
     this.paginaAtual = 1;
     this.service.listar(this.paginaAtual, this.filtro)
-      .subscribe(listaPensamentos => {
-        console.log('Pensamentos após pesquisa:', listaPensamentos);
-        this.listaPensamentos = listaPensamentos;
-        const idsCarregados = this.listaPensamentos.map(p => p.id);
-        console.log('IDs carregados após pesquisa:', idsCarregados);
-        if (listaPensamentos.length < 6) {
-          this.haMaisPensamentos = false;
-        }
-        console.log('haMaisPensamentos após pesquisa:', this.haMaisPensamentos);
+     .subscribe(listaPensamentos => { this.listaPensamentos = listaPensamentos
       });
   }
 }

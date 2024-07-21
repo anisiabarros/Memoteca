@@ -23,7 +23,6 @@ export class PensamentoService {
       params = params.set('q', filtro);
     }
 
-    console.log('Listar pensamentos - Página:', pagina, 'Filtro:', filtro, 'Params:', params.toString());
 
     return this.http.get<Pensamento[]>(this.API, { params });
   }
