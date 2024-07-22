@@ -1,62 +1,71 @@
 import { Pensamento } from './../pensamento/pensamento';
 import { PensamentoService } from './../pensamento.service';
 import { Component, OnInit } from '@angular/core';
+import {Router} from '@angular/router' ;
 
 @Component({
   selector: 'app-listar-pensamento',
   templateUrl: './listar-pensamento.component.html',
   styleUrls: ['./listar-pensamento.component.css']
-})
-export class ListarPensamentoComponent implements OnInit {
+})export class ListarPensamentoComponent implements OnInit {
 
   listaPensamentos: Pensamento[] = [];
   paginaAtual: number = 1;
   haMaisPensamentos: boolean = true;
-  filtro: string = '';
+  filtro: string = ''
+  favoritos: boolean = false;
+  listaFavoritos: Pensamento[] = []
+  titulo: string = 'Meu Mural'
 
-  constructor(private service: PensamentoService) { }
+  constructor(
+    private service: PensamentoService,
+    private router: Router
+    ) { }
 
   ngOnInit(): void {
-    this.service.listar(this.paginaAtual, this.filtro).subscribe((listaPensamentos) => {
-      console.log('Pensamentos iniciais:', listaPensamentos);
-      this.listaPensamentos = listaPensamentos;
-      if (listaPensamentos.length < 6) {
-        this.haMaisPensamentos = false;
-      }
-      console.log('haMaisPensamentos:', this.haMaisPensamentos);
-    });
+    this.service.listar(this.paginaAtual, this.filtro, this.favoritos).subscribe((listaPensamentos) => {
+      this.listaPensamentos = listaPensamentos
+    })
   }
 
   carregarMaisPensamentos() {
-    console.log('Carregar mais pensamentos - Página atual:', this.paginaAtual);
-    this.service.listar(++this.paginaAtual, this.filtro)
+    this.service.listar(++this.paginaAtual, this.filtro, this.favoritos)
       .subscribe(listaPensamentos => {
-        console.log('Mais pensamentos carregados:', listaPensamentos);
-        const novosIds = listaPensamentos.map(p => p.id);
-        const idsCarregados = this.listaPensamentos.map(p => p.id);
-        const idsDuplicados = novosIds.filter(id => idsCarregados.includes(id));
-
-        if (idsDuplicados.length > 0) {
-          console.warn('Pensamentos duplicados detectados:', idsDuplicados);
-          this.haMaisPensamentos = false; // Parar de carregar mais se encontrar duplicados
-        } else {
-          this.listaPensamentos.push(...listaPensamentos);
+        this.listaPensamentos.push(...listaPensamentos);
+        if(!listaPensamentos.length) {
+          this.haMaisPensamentos = false
         }
-
-        console.log('IDs carregados até agora:', idsCarregados.concat(novosIds));
-        if (!listaPensamentos.length || listaPensamentos.length < 6) {
-          this.haMaisPensamentos = false;
-        }
-        console.log('haMaisPensamentos após carregar mais:', this.haMaisPensamentos);
-      });
+      })
   }
 
   pesquisarPensamentos() {
-
-    this.haMaisPensamentos = true;
+    this.haMaisPensamentos = true
     this.paginaAtual = 1;
-    this.service.listar(this.paginaAtual, this.filtro)
-     .subscribe(listaPensamentos => { this.listaPensamentos = listaPensamentos
-      });
+    this.service.listar(this.paginaAtual, this.filtro, this.favoritos)
+      .subscribe(listaPensamentos => {
+        this.listaPensamentos = listaPensamentos
+      })
   }
+
+  recarregarComponente() {
+    this.favoritos = false;
+    this.paginaAtual = 1;
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    this.router.onSameUrlNavigation = 'reload'
+    this.router.navigate([this.router.url])
+  }
+
+  listarFavoritos() {
+    this.titulo = 'Meus Favoritos'
+    this.favoritos = true
+    this.haMaisPensamentos = true
+    this.paginaAtual = 1
+    this.service.listar(this.paginaAtual, this.filtro, this.favoritos)
+      .subscribe(listaPensamentosFavoritos => {
+        this.listaPensamentos = listaPensamentosFavoritos
+        this.listaFavoritos = listaPensamentosFavoritos
+      })
+  }
+
+
 }

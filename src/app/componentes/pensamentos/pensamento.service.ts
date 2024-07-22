@@ -7,46 +7,46 @@ import { Pensamento } from './pensamento/pensamento';
   providedIn: 'root'
 })
 export class PensamentoService {
+  private readonly API = 'http://localhost:3000/pensamentos'
 
-  private readonly API = 'http://localhost:3000/pensamentos';
+  constructor(private http: HttpClient){}
 
-  constructor(private http: HttpClient) { }
-
-  listar(pagina: number, filtro: string): Observable<Pensamento[]> {
+  listar(pagina: number, filtro : string, favoritos: boolean): Observable<Pensamento[]>{
     const itensPorPagina = 6;
 
     let params = new HttpParams()
-      .set('_page', pagina.toString())
-      .set('_limit', itensPorPagina.toString());
+    .set("_page", pagina)
+    .set("_limit", itensPorPagina)
 
-    if (filtro.trim().length > 2) {
-      params = params.set('q', filtro);
+    if(filtro.trim().length >2){
+      params = params.set("q", filtro)
     }
-
-
-    return this.http.get<Pensamento[]>(this.API, { params });
+    if(favoritos){
+      params = params.set("favorito", true)
+    }
+    return this.http.get<Pensamento[]>(this.API,{params})
   }
 
-  criar(pensamento: Pensamento): Observable<Pensamento> {
-    return this.http.post<Pensamento>(this.API, pensamento);
+  criar(pensamento: Pensamento): Observable<Pensamento>{
+    return this.http.post<Pensamento>(this.API, pensamento)
   }
 
-  editar(pensamento: Pensamento): Observable<Pensamento> {
-    const url = `${this.API}/${pensamento.id}`;
-    return this.http.put<Pensamento>(url, pensamento);
+  editar(pensamento: Pensamento): Observable<Pensamento>{
+    const url = `${this.API}/${pensamento.id}`
+    return this.http.put<Pensamento>(url,pensamento)
   }
-  mudarFavorito(pensamento: Pensamento):Observable<Pensamento> {
+  mudarFavorito(pensamento: Pensamento): Observable<Pensamento>{
     pensamento.favorito = !pensamento.favorito
     return this.editar(pensamento)
   }
 
-  excluir(id: number): Observable<Pensamento> {
-    const url = `${this.API}/${id}`;
-    return this.http.delete<Pensamento>(url);
+  excluir(id: number): Observable<Pensamento>{
+    const url = `${this.API}/${id}`
+    return this.http.delete<Pensamento>(url)
+  }
+  buscarPorId(id: number): Observable<Pensamento>{
+    const url = `${this.API}/${id}`
+    return this.http.get<Pensamento>(url)
   }
 
-  buscarPorId(id: number): Observable<Pensamento> {
-    const url = `${this.API}/${id}`;
-    return this.http.get<Pensamento>(url);
-  }
 }
